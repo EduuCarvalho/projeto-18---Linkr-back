@@ -38,12 +38,10 @@ export async function timelinePostValidation(req, res, next) {
             ORDER BY id DESC
             LIMIT 1
         `,
-            [1]
+            [userId]
         );
 
         req.linkId = linkId.rows[0].id;
-
-        next();
     } catch (err) {
         console.log(err);
         return res.sendStatus(500);
