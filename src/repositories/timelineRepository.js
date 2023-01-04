@@ -12,7 +12,7 @@ export async function insertPost(userId, linkId, description) {
 export async function getPosts() {
     const completePosts = [];
 
-    const posts = connectionDB.query(`
+    const posts = await connectionDB.query(`
         SELECT p.id, p.description,
             u.name, u.picture_url,
             l.url
@@ -23,7 +23,7 @@ export async function getPosts() {
                 on p.link_id =l.id
     `);
 
-    const likes = connectionDB.query(`
+    const likes = await connectionDB.query(`
         SELECT u.name, 
             l.post_id
         FROM likes as l
@@ -31,12 +31,13 @@ export async function getPosts() {
                 ON l.user_id = u.id
     `);
 
-    (await posts).rows.map((item) => {
+    posts.rows.map((item) => {
         const postLikes = [];
 
         if (likes.rowCount > 0) {
             for (let i = 0; i < likes.rows.length; i++) {
                 if (item.id === likes.rows[i].post_id) {
+                    
                     postLikes.push(likes.rows[i].name);
                 }
             }
