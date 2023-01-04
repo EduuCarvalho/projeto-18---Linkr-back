@@ -13,8 +13,8 @@ export async function getPosts() {
     const completePosts = [];
 
     const posts = connectionDB.query(`
-        SELECT u.name, u.picture_url, 
-            p.id, p.description,
+        SELECT p.id, p.description,
+            u.name, u.picture_url,
             l.url
         FROM posts as p
             JOIN users as u
