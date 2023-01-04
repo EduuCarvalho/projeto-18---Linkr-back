@@ -23,22 +23,36 @@ export async function timelinePostValidation(req, res, next) {
 
     try {
 
-        await connectionDB.query(`
-            INSERT INTO links(url)
-            VALUES ($1)
-        `,
-            [url]
-        );
-
-        const linkId = await connectionDB.query(`
-            SELECT id 
-            FROM links 
+        const linkExists = await connectionDB.query(`
+            SELECT * 
+            FROM links
             WHERE url = $1
         `,
             [url]
         );
 
-        req.linkId = linkId.rows[0].id;
+        if(linkExists.rowCount === 0){
+            await connectionDB.query(`
+                INSERT INTO links(url)
+                VALUES ($1)
+            `,
+                [url]
+            );
+    
+            const linkId = await connectionDB.query(`
+                SELECT id 
+                FROM links 
+                WHERE url = $1
+            `,
+                [url]
+            );
+
+            req.linkId = linkId.rows[0].id;
+        }else{
+            req.linkId = linkExists.rows[0].id;
+        }
+
+
     } catch (err) {
         console.log(err);
         return res.sendStatus(500);
