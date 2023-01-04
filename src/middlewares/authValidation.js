@@ -1,6 +1,6 @@
 import connectionDB from "../database/database.js";
 
-export default async function authValidation(req, res, next){
+export default async function authValidation(req, res, next) {
     const { authorization } = req.headers;
     const token = authorization?.replace("Bearer ", "");
 
@@ -24,7 +24,7 @@ export default async function authValidation(req, res, next){
         req.user = session.rows[0].user_id;
 
         next();
-    }catch (err) {
+    } catch (err) {
         console.log(err);
         return res.sendStatus(500);
     }
