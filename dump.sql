@@ -26,7 +26,7 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.hashtags (
     id integer NOT NULL,
-    name integer NOT NULL,
+    name text NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL
 );
 
@@ -140,7 +140,7 @@ ALTER SEQUENCE public.links_id_seq OWNED BY public.links.id;
 
 CREATE TABLE public.post_hashtags (
     id integer NOT NULL,
-    hastag_id integer NOT NULL,
+    hashtag_id integer NOT NULL,
     post_id integer NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL
 );
@@ -528,7 +528,7 @@ ALTER TABLE ONLY public.likes
 --
 
 ALTER TABLE ONLY public.post_hashtags
-    ADD CONSTRAINT post_hashtags_fk0 FOREIGN KEY (hastag_id) REFERENCES public.hashtags(id);
+    ADD CONSTRAINT post_hashtags_fk0 FOREIGN KEY (hashtag_id) REFERENCES public.hashtags(id);
 
 
 --
