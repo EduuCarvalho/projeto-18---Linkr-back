@@ -21,6 +21,8 @@ export async function getPosts() {
                 ON p.user_id = u.id
             JOIN links as l
                 on p.link_id =l.id
+        ORDER BY id DESC
+        LIMIT 20
     `);
 
     const likes = await connectionDB.query(`
