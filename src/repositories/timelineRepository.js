@@ -1,6 +1,6 @@
 import connectionDB from "../database/database.js";
 
-export async function insertPost(userId, linkId, description){
+export async function insertPost(userId, linkId, description) {
     return connectionDB.query(`
         INSERT INTO posts (user_id, link_id, description)
         VALUES ($1, $2, $3)
@@ -9,7 +9,7 @@ export async function insertPost(userId, linkId, description){
     );
 }
 
-export async function getPosts(){
+export async function getPosts() {
     const completePosts = [];
 
     const posts = connectionDB.query(`
@@ -34,15 +34,15 @@ export async function getPosts(){
     (await posts).rows.map((item) => {
         const postLikes = [];
 
-        if (likes.rowCount > 0){
-            for(let i = 0; i < likes.rows.length; i++){
-                if(item.id === likes.rows[i].post_id){
+        if (likes.rowCount > 0) {
+            for (let i = 0; i < likes.rows.length; i++) {
+                if (item.id === likes.rows[i].post_id) {
                     postLikes.push(likes.rows[i].name);
                 }
             }
         }
-        
-        completePosts.push({...item, likes: [...postLikes]});
+
+        completePosts.push({ ...item, likes: [...postLikes] });
     });
 
     return completePosts;

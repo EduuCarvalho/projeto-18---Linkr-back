@@ -31,14 +31,14 @@ export async function timelinePostValidation(req, res, next) {
             [url]
         );
 
-        if(linkExists.rowCount === 0){
+        if (linkExists.rowCount === 0) {
             await connectionDB.query(`
                 INSERT INTO links(url)
                 VALUES ($1)
             `,
                 [url]
             );
-    
+
             const linkId = await connectionDB.query(`
                 SELECT id 
                 FROM links 
@@ -48,7 +48,7 @@ export async function timelinePostValidation(req, res, next) {
             );
 
             req.linkId = linkId.rows[0].id;
-        }else{
+        } else {
             req.linkId = linkExists.rows[0].id;
         }
 
