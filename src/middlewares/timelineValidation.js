@@ -46,7 +46,3 @@ export async function timelinePostValidation(req, res, next) {
 
     next();
 }
-
-export async function getTimelinePosts(req, res, next) {
-    
-}
