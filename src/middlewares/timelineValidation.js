@@ -3,7 +3,6 @@ import { timelinePostModel } from "../models/timelineModel.js";
 
 export async function timelinePostValidation(req, res, next) {
     const { url, description } = req.body;
-    const userId = req.user;
 
     const { error } = timelinePostModel.validate(req.body, { abortEarly: false });
 
@@ -16,29 +15,27 @@ export async function timelinePostValidation(req, res, next) {
         return res.status(422).send('Invalid url. Expect "https://"');
     }
 
-    if (!description){
+    if (!description) {
         req.description = '';
-    }else{
+    } else {
         req.description = description;
     }
 
     try {
-        
+
         await connectionDB.query(`
-            INSERT INTO links(user_id, url)
-            VALUES ($1, $2)
+            INSERT INTO links(url)
+            VALUES ($1)
         `,
-            [userId, url]
+            [url]
         );
 
         const linkId = await connectionDB.query(`
             SELECT id 
             FROM links 
-            WHERE user_id = $1
-            ORDER BY id DESC
-            LIMIT 1
+            WHERE url = $1
         `,
-            [userId]
+            [url]
         );
 
         req.linkId = linkId.rows[0].id;
@@ -48,4 +45,8 @@ export async function timelinePostValidation(req, res, next) {
     }
 
     next();
+}
+
+export async function getTimelinePosts(req, res, next) {
+    
 }
