@@ -1,10 +1,11 @@
 import joi from "joi";
 
-export const signUpSchema = joi.object({
-    name:joi.string().max(30).required(),
+export const SignUpSchema = joi.object({
+    
     email:joi.string().email().max(30).required(),
     password:joi.string().required(),
-    confirmPassword:joi.ref("password")
+    name:joi.string().max(30).required(),
+    pictureurl:joi.string().required()
     })
 
 
