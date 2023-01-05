@@ -1,27 +1,83 @@
-import { getPosts, insertPost } from "../repositories/timelineRepository.js";
+import {
+  deletePost,
+  findPost,
+  getPosts,
+  insertPost,
+  updatePost,
+} from "../repositories/timelineRepository.js";
 
 export async function timelinePost(req, res) {
-    const userId = req.user;
-    const linkId = req.linkId;
-    const description = req.description;
+  const userId = req.user;
+  const linkId = req.linkId;
+  const description = req.description;
 
-    try {
-        await insertPost(userId, linkId, description);
+  try {
+    await insertPost(userId, linkId, description);
 
-        return res.sendStatus(201);
-    } catch (err) {
-        console.log(err);
-        return res.sendStatus(500);
-    }
+    return res.sendStatus(201);
+  } catch (err) {
+    console.log(err);
+    return res.sendStatus(500);
+  }
 }
 
 export async function getTimelinePosts(req, res, next) {
-    try {
-        const posts = await getPosts();
+  try {
+    const posts = await getPosts();
 
-        return res.send(posts).status(200);
-    } catch (err) {
-        console.log(err);
-        return res.sendStatus(500);
+    return res.send(posts).status(200);
+  } catch (err) {
+    console.log(err);
+    return res.sendStatus(500);
+  }
+}
+
+export async function updateTimelinePost(req, res) {
+  const userId = req.user;
+  const { id } = req.params;
+  const { description } = req.body;
+  try {
+    const { rows } = await findPost(id);
+    const [post] = rows;
+    if (!post) {
+      res.status(404).send({ message: "The post doesn't exist!" });
+      return;
     }
+    if (post.user_id !== userId) {
+      res
+        .status(401)
+        .send({ message: "The post does not belong to this user!" });
+      return;
+    }
+    await updatePost(id, description);
+    res.status(200).send({ message: "The post has been updated!" });
+  } catch (err) {
+    console.log(err);
+    return res.sendStatus(500);
+  }
+}
+
+export async function deleteTimelinePost(req, res) {
+  const userId = req.user;
+  const { id } = req.params;
+  const { description } = req.body;
+  try {
+    const { rows } = await findPost(id);
+    const [post] = rows;
+    if (!post) {
+      res.status(404).send({ message: "The post doesn't exist!" });
+      return;
+    }
+    if (post.user_id !== userId) {
+      res
+        .status(401)
+        .send({ message: "The post does not belong to this user!" });
+      return;
+    }
+    await deletePost(id, description);
+    res.status(200).send({ message: "The post has been deleted!" });
+  } catch (err) {
+    console.log(err);
+    return res.sendStatus(500);
+  }
 }

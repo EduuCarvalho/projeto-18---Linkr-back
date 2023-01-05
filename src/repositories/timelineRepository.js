@@ -50,3 +50,18 @@ export async function getPosts() {
 
     return completePosts;
 }
+
+export function findPost(post_id) {
+  return connectionDB.query("SELECT * FROM posts WHERE id = $1", [post_id]);
+}
+
+export function updatePost(post_id, description) {
+  return connectionDB.query("UPDATE posts SET description = $1 WHERE id = $2", [
+    description,
+    post_id,
+  ]);
+}
+
+export function deletePost(post_id) {
+  return connectionDB.query("DELETE FROM posts WHERE id = $1", [post_id]);
+}
