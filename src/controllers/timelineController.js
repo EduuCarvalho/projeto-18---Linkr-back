@@ -12,7 +12,21 @@ export async function timelinePost(req, res) {
   const description = req.description;
 
   try {
-    await insertPost(userId, linkId, description);
+    const { rows } = await insertPost(userId, linkId, description);
+
+    if (description.length > 1) {
+      const postId = rows[0].id;
+      const words = description.split(" ");
+
+      const hashtags = words.filter(
+        element => element[0] === "#" && element.length > 1
+      );
+
+      for (let hashtag of hashtags) {
+        hashtag = hashtag.substring(1);
+        await insertHashtagsPost(userId, postId, hashtag);
+      };
+    }
 
     return res.sendStatus(201);
   } catch (err) {
