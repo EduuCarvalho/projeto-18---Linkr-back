@@ -4,6 +4,7 @@ import timeline from "./timeline.js";
 import trending from "./trending.js";
 import users from "./users.js";
 import logInRouter from "./Login.js";
+import hashtags from "./hashtags.js";
 
 
 const router = Router();
@@ -18,6 +19,6 @@ router.use(likes);
 
 router.use(trending);
 
-
+router.use(hashtags);
 
 export default router;
