@@ -5,6 +5,7 @@ import {
   insertPost,
   updatePost,
 } from "../repositories/timelineRepository.js";
+import { hashtagsRepository } from "../repositories/hashtagsRepository.js";
 
 export async function timelinePost(req, res) {
   const userId = req.user;
@@ -19,12 +20,13 @@ export async function timelinePost(req, res) {
       const words = description.split(" ");
 
       const hashtags = words.filter(
-        element => element[0] === "#" && element.length > 1
+        element =>
+          element[0] === "#" && element.length > 1 && /^[a-zA-Z0-9_]+$/.test(element[1])
       );
 
       for (let hashtag of hashtags) {
         hashtag = hashtag.substring(1);
-        await insertHashtagsPost(userId, postId, hashtag);
+        await hashtagsRepository.insertHashtagsPost(postId, hashtag);
       };
     }
 
