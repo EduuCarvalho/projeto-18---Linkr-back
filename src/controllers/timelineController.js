@@ -118,6 +118,7 @@ export async function deleteTimelinePost(req, res) {
         .send({ message: "The post does not belong to this user!" });
       return;
     }
+    await hashtagsRepository.dropAllHashtagsPost(id);
     await deletePost(id, description);
     res.status(200).send({ message: "The post has been deleted!" });
   } catch (err) {

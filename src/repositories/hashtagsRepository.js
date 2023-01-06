@@ -7,6 +7,13 @@ async function dropHashtagsPost(postHashtagsId) {
     );
 }
 
+async function dropAllHashtagsPost(postId) {
+    return connectionDB.query(
+        `DELETE FROM post_hashtags WHERE post_id = $1;`,
+        [postId]
+    );
+}
+
 async function insertHashtagsPost(postId, hashtag) {
     let hashtagId;
 
@@ -42,4 +49,4 @@ async function selectHashtagsPost(postId) {
     );
 }
 
-export const hashtagsRepository = { dropHashtagsPost, insertHashtagsPost, selectHashtagsPost };
+export const hashtagsRepository = { dropHashtagsPost, dropAllHashtagsPost, insertHashtagsPost, selectHashtagsPost };
