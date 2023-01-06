@@ -15,7 +15,7 @@ export async function postLike(req, res) {
 }
 
 export async function deleteLike(req, res) {
-    const { postId } = req.body;
+    const postId = req.params.postId;
     const userId = req.user;
 
     try {

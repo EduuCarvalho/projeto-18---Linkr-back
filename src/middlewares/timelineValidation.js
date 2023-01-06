@@ -11,8 +11,8 @@ export async function timelinePostValidation(req, res, next) {
         return res.status(422).send(errors);
     }
 
-    if (url.substr(0, 8) !== 'https://') {
-        return res.status(422).send('Invalid url. Expect "https://"');
+    if (url.substr(0, 8) !== 'https://' && url.substr(0, 7) !== 'http://') {
+        return res.status(422).send('Invalid url. Expect "https://" or "http://"');
     }
 
     if (!description) {

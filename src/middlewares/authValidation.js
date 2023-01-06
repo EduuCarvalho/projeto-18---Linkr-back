@@ -18,7 +18,7 @@ export default async function authValidation(req, res, next) {
         );
 
         if (session.rows.length === 0) {
-            return res.sendStatus(401);
+            return res.sendStatus(409);
         }
 
         req.user = session.rows[0].user_id;
