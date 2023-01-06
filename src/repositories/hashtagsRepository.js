@@ -1,5 +1,12 @@
 import connectionDB from "../database/database.js";
 
+async function dropHashtagsPost(postHashtagsId) {
+    return connectionDB.query(
+        `DELETE FROM post_hashtags WHERE id = $1;`,
+        [postHashtagsId]
+    );
+}
+
 async function insertHashtagsPost(postId, hashtag) {
     let hashtagId;
 
@@ -25,4 +32,14 @@ async function insertHashtagsPost(postId, hashtag) {
     );
 }
 
-export const hashtagsRepository = { insertHashtagsPost };
+async function selectHashtagsPost(postId) {
+    return connectionDB.query(
+        `SELECT h.name, ph.id AS post_hashtags_id
+        FROM post_hashtags ph
+        JOIN hashtags h ON ph.hashtag_id = h.id
+        WHERE ph.post_id = $1;`,
+        [postId]
+    );
+}
+
+export const hashtagsRepository = { dropHashtagsPost, insertHashtagsPost, selectHashtagsPost };
