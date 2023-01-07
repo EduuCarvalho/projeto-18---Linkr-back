@@ -1,4 +1,5 @@
 import connectionDB from "../database/database.js";
+import urlMetadata from 'url-metadata';
 
 async function dropHashtagsPost(postHashtagsId) {
     return connectionDB.query(
@@ -78,20 +79,28 @@ async function selectPostsByHashtag(hashtag) {
                 ON l.user_id = u.id
     `);
 
-    posts.rows.map((item) => {
+    for (let i = 0; i < posts.rows.length; i++) {
         const postLikes = [];
 
         if (likes.rowCount > 0) {
             for (let i = 0; i < likes.rows.length; i++) {
-                if (item.id === likes.rows[i].post_id) {
-                    
+                if (posts.rows[i].id === likes.rows[i].post_id) {    
                     postLikes.push(likes.rows[i].name);
                 }
             }
         }
 
-        completePosts.push({ ...item, likes: [...postLikes] });
-    });
+        await urlMetadata(posts.rows[i].url).then(response => {
+            completePosts.push({
+                ...posts.rows[i],
+                linkTitle: response.title,
+                linkDescription: response.description,
+                linkImg: response.image,
+                likes: [...postLikes]
+            });
+        }
+        );
+    }
 
     return completePosts;
 }
