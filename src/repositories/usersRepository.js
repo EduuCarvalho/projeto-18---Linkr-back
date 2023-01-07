@@ -37,16 +37,15 @@ export async function selectUserPosts(userId) {
         FROM likes as l
             JOIN users as u
                 ON l.user_id = u.id
-        WHERE u.id = $1
-    `, [userId]);
+    `);
 
   for (let i = 0; i < posts.rows.length; i++) {
     const postLikes = [];
 
     if (likes.rowCount > 0) {
-      for (let i = 0; i < likes.rows.length; i++) {
-        if (posts.rows[i].id === likes.rows[i].post_id) {
-          postLikes.push(likes.rows[i].name);
+      for (let j = 0; j < likes.rows.length; j++) {
+        if (posts.rows[i].id === likes.rows[j].post_id) {
+          postLikes.push(likes.rows[j].name);
         }
       }
     }
