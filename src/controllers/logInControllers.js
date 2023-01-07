@@ -7,12 +7,12 @@ export async function postSignIn(req,res){
 
     const user = res.locals.user;
     const token = uuidV4();
-
+1     
     try{
         await connectionDB.query(
             `INSERT INTO sessions (token, user_id) VALUES ($1,$2);`,[token,user.id]
         )
-        res.sendStatus(200);
+        res.status(200).send({token:token,name:user.name,picture_url :user.picture_url });
 
     }catch (err) {
         console.log(err)
@@ -21,7 +21,7 @@ export async function postSignIn(req,res){
 }
 
 export async function postSignUp(req,res) {
-    console.log("tok aki")
+
     const {email, password , name, pictureurl} = req.body;
 
  const cryptedPassword = bcrypt.hashSync(password,10); 
