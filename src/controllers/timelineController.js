@@ -5,6 +5,7 @@ import {
   insertPost,
   updatePost,
 } from "../repositories/timelineRepository.js";
+import { hashtagsRepository } from "../repositories/hashtagsRepository.js";
 
 export async function timelinePost(req, res) {
   const userId = req.user;
@@ -12,7 +13,19 @@ export async function timelinePost(req, res) {
   const description = req.description;
 
   try {
-    await insertPost(userId, linkId, description);
+    const { rows } = await insertPost(userId, linkId, description);
+
+    if (description.length > 1) {
+      const postId = rows[0].id;
+      const hashtags = description.split(" ").filter(
+        element =>
+          element[0] === "#" && element.length > 1 && /^[a-zA-Z0-9_]+$/.test(element[1])
+      );
+
+      for (const hashtag of hashtags) {
+        await hashtagsRepository.insertHashtagsPost(postId, hashtag.substring(1));
+      };
+    }
 
     return res.sendStatus(201);
   } catch (err) {
@@ -50,6 +63,37 @@ export async function updateTimelinePost(req, res) {
       return;
     }
     await updatePost(id, description);
+
+    let hashtagsUpdate = [];
+
+    if (description.length > 1) {
+      hashtagsUpdate = description
+        .split(" ")
+        .filter(
+          element =>
+            element[0] === "#" && element.length > 1 && /^[a-zA-Z0-9_]+$/.test(element[1])
+        )
+        .map(hashtag => hashtag.substring(1));
+    }
+
+    const hashtagsPrevious = await hashtagsRepository.selectHashtagsPost(id);
+
+    if (hashtagsPrevious.rowCount) {
+      for (const hashtag of hashtagsPrevious.rows) {
+        const index = hashtagsUpdate.indexOf(hashtag.name);
+
+        if (index > -1) {
+          hashtagsUpdate.splice(index,1);
+        } else {
+          await hashtagsRepository.dropHashtagsPost(hashtag.post_hashtags_id);
+        }
+      }
+    }
+
+    for (const hashtag of hashtagsUpdate) {
+      await hashtagsRepository.insertHashtagsPost(id, hashtag);
+    };
+
     res.status(200).send({ message: "The post has been updated!" });
   } catch (err) {
     console.log(err);
@@ -74,6 +118,7 @@ export async function deleteTimelinePost(req, res) {
         .send({ message: "The post does not belong to this user!" });
       return;
     }
+    await hashtagsRepository.dropAllHashtagsPost(id);
     await deletePost(id, description);
     res.status(200).send({ message: "The post has been deleted!" });
   } catch (err) {

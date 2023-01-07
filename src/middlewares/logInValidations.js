@@ -8,6 +8,12 @@ export const signInValidations = async (req,res,next)=>{
     console.log("to aki")
     const { email, password } = req.body;
 
+    const confirmEmail =  await checkEmail(email)
+
+    if(confirmEmail.rows.length===0){
+        return res.status(404).send("email nao cadastrado")
+    }
+
     const { errors } = signInSchema.validate(email, password,{abortEarly:false})
 
     if(errors){
@@ -15,9 +21,8 @@ export const signInValidations = async (req,res,next)=>{
         return res.status(422).send(error); 
     }
 
-    const confirmEmail =  await checkEmail(email)
-    console.log(confirmEmail.rows[0].password,"crypted password")
-    console.log(password,'passwordddd')
+   
+   console.log(confirmEmail.rows[0],"kopkopsada")
 
     const userPassword = bcrypt.compareSync(password,confirmEmail.rows[0].password)
     console.log(userPassword,"userPassword")
