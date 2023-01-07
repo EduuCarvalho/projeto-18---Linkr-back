@@ -34,45 +34,28 @@ export async function getPosts() {
                 ON l.user_id = u.id
     `);
 
-    posts.rows.map(async(item) => {
+    for (let i = 0; i < posts.rows.length; i++) {
         const postLikes = [];
 
         if (likes.rowCount > 0) {
             for (let i = 0; i < likes.rows.length; i++) {
-                if (item.id === likes.rows[i].post_id) {
-
+                if (posts.rows[i].id === likes.rows[i].post_id) {
                     postLikes.push(likes.rows[i].name);
                 }
             }
         }
 
-        completePosts.push({
-            ...item,
-            linkTitle: 'Instagram',
-            linkDescription: 'A big social media',
-            linkImg: 'https://t.ctcdn.com.br/eXQweorgzzB_ARsw7I9Bvp4O_Qg=/400x400/smart/filters:format(webp)/i489927.jpeg',
-            likes: [...postLikes]
-        });
-
-
-        /* try {
-            const linkMetadata = await urlMetadata('http://bit.ly/2ePIrDy');
-            
-            console.log(linkMetadata.title);
-
+        await urlMetadata(posts.rows[i].url).then(response => {
             completePosts.push({
-                ...item,
-                linkTitle: linkMetadata.title,
-                linkDescription: linkMetadata.description,
-                linkImg: linkMetadata.image,
+                ...posts.rows[i],
+                linkTitle: response.title,
+                linkDescription: response.description,
+                linkImg: response.image,
                 likes: [...postLikes]
             });
-
-            return completePosts;
-        } catch (err) {
-            return err
-        } */
-    });
+        }
+        );
+    }
 
     return completePosts;
 }
