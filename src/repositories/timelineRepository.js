@@ -1,4 +1,5 @@
 import connectionDB from "../database/database.js";
+import urlMetadata from 'url-metadata';
 
 export async function insertPost(userId, linkId, description) {
     return connectionDB.query(`
@@ -34,35 +35,43 @@ export async function getPosts() {
                 ON l.user_id = u.id
     `);
 
-    posts.rows.map((item) => {
+    for (let i = 0; i < posts.rows.length; i++) {
         const postLikes = [];
 
         if (likes.rowCount > 0) {
             for (let i = 0; i < likes.rows.length; i++) {
-                if (item.id === likes.rows[i].post_id) {
-                    
+                if (posts.rows[i].id === likes.rows[i].post_id) {
                     postLikes.push(likes.rows[i].name);
                 }
             }
         }
 
-        completePosts.push({ ...item, likes: [...postLikes] });
-    });
+        await urlMetadata(posts.rows[i].url).then(response => {
+            completePosts.push({
+                ...posts.rows[i],
+                linkTitle: response.title,
+                linkDescription: response.description,
+                linkImg: response.image,
+                likes: [...postLikes]
+            });
+        }
+        );
+    }
 
     return completePosts;
 }
 
 export function findPost(post_id) {
-  return connectionDB.query("SELECT * FROM posts WHERE id = $1", [post_id]);
+    return connectionDB.query("SELECT * FROM posts WHERE id = $1", [post_id]);
 }
 
 export function updatePost(post_id, description) {
-  return connectionDB.query("UPDATE posts SET description = $1 WHERE id = $2", [
-    description,
-    post_id,
-  ]);
+    return connectionDB.query("UPDATE posts SET description = $1 WHERE id = $2", [
+        description,
+        post_id,
+    ]);
 }
 
 export function deletePost(post_id) {
-  return connectionDB.query("DELETE FROM posts WHERE id = $1", [post_id]);
+    return connectionDB.query("DELETE FROM posts WHERE id = $1", [post_id]);
 }

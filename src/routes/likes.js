@@ -5,6 +5,6 @@ import { deleteLikeValidation, postLikeValidation } from "../middlewares/likesVa
 const likes = Router();
 
 likes.post("/like", authValidation, postLikeValidation, postLike);
-likes.delete("/like", authValidation, deleteLikeValidation, deleteLike);
+likes.delete("/like/post/:postId", authValidation, deleteLikeValidation, deleteLike);
 
 export default likes;

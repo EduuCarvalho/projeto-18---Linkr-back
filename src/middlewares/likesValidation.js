@@ -1,5 +1,5 @@
 import connectionDB from "../database/database.js";
-import { likesPostModel } from "../models/timelineModel.js";
+import { likesPostModel } from "../models/likesModel.js";
 
 export async function postLikeValidation(req, res, next) {
     const userId = req.user;
@@ -35,13 +35,10 @@ export async function postLikeValidation(req, res, next) {
 
 export async function deleteLikeValidation(req, res, next) {
     const userId = req.user;
-    const { postId } = req.body;
+    const postId = req.params.postId;
 
-    const { error } = likesPostModel.validate(req.body, { abortEarly: false });
-
-    if (error) {
-        const errors = error.details.map((detail) => detail.message);
-        return res.status(422).send(errors);
+    if(!postId){
+        return res.sendStatus(422);
     }
 
     try {
