@@ -38,7 +38,7 @@ export async function getTimelinePosts(req, res, next) {
   try {
     const posts = await getPosts();
 
-    return res.send(posts).status(200);
+    return res.send({posts}).status(200);
   } catch (err) {
     console.log(err);
     return res.sendStatus(500);

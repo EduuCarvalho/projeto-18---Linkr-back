@@ -1,4 +1,4 @@
-import { searchUsers, selectUserPosts } from "../repositories/usersRepository.js";
+import { searchUsers, selectUser, selectUserPosts } from "../repositories/usersRepository.js";
 
 export async function getUsersBySearch(req, res) {
   const { name } = req.query;
@@ -17,9 +17,14 @@ export async function getUserPosts(req, res) {
   const { id } = req.params;
 
   try {
+    const { rows } = await selectUser(id);
+    const [user] = rows;
+    if (!user){
+      res.status(404).send({ message: "The user doesn't exist!" });
+      return;
+    }
     const posts = await selectUserPosts(id);
-    
-    res.status(200).send(posts);
+    res.status(200).send({username: user.name, posts});
   } catch (err) {
     console.log(err);
     return res.sendStatus(500);
