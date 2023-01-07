@@ -8,6 +8,13 @@ export function searchUsers(pattern) {
   );
 }
 
+export function selectUser(id) {
+  return connectionDB.query(
+    'SELECT id, name, "picture_url" FROM users WHERE id = $1',
+    [id]
+  );
+}
+
 export async function selectUserPosts(userId) {
   const completePosts = [];
 
