@@ -12,7 +12,7 @@ export async function postSignIn(req,res){
         await connectionDB.query(
             `INSERT INTO sessions (token, user_id) VALUES ($1,$2);`,[token,user.id]
         )
-        res.status(200).send({token:token,name:user.name,picture_url :user.picture_url });
+        res.status(200).send({userId: user.id,token:token,name:user.name,picture_url :user.picture_url });
 
     }catch (err) {
         console.log(err)
