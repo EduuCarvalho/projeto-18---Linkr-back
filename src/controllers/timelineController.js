@@ -6,6 +6,7 @@ import {
   updatePost,
 } from "../repositories/timelineRepository.js";
 import { hashtagsRepository } from "../repositories/hashtagsRepository.js";
+import { deleteAllLikesPost } from "../repositories/likesRepository.js";
 
 export async function timelinePost(req, res) {
   const userId = req.user;
@@ -119,6 +120,7 @@ export async function deleteTimelinePost(req, res) {
       return;
     }
     await hashtagsRepository.dropAllHashtagsPost(id);
+    await deleteAllLikesPost(id);
     await deletePost(id, description);
     res.status(200).send({ message: "The post has been deleted!" });
   } catch (err) {

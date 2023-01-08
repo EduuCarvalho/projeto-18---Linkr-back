@@ -18,3 +18,10 @@ export async function deleteFromLike(postId, userId) {
         [userId, postId]
     );
 }
+
+export function deleteAllLikesPost(postId) {
+    return connectionDB.query(
+        `DELETE FROM likes WHERE post_id = $1;`,
+        [postId]
+    );
+}
