@@ -83,9 +83,9 @@ async function selectPostsByHashtag(hashtag) {
         const postLikes = [];
 
         if (likes.rowCount > 0) {
-            for (let i = 0; i < likes.rows.length; i++) {
-                if (posts.rows[i].id === likes.rows[i].post_id) {    
-                    postLikes.push(likes.rows[i].name);
+            for (let j = 0; j < likes.rows.length; j++) {
+                if (posts.rows[i].id === likes.rows[j].post_id) {
+                  postLikes.push(likes.rows[j].name);
                 }
             }
         }
