@@ -1,14 +1,14 @@
 import connectionDB from "../database/database.js";
 import urlMetadata from 'url-metadata';
 
-async function dropHashtagsPost(postHashtagsId) {
+async function deleteHashtagsPost(postHashtagsId) {
     return connectionDB.query(
         `DELETE FROM post_hashtags WHERE id = $1;`,
         [postHashtagsId]
     );
 }
 
-async function dropAllHashtagsPost(postId) {
+async function deleteAllHashtagsPost(postId) {
     return connectionDB.query(
         `DELETE FROM post_hashtags WHERE post_id = $1;`,
         [postId]
@@ -106,8 +106,8 @@ async function selectPostsByHashtag(hashtag) {
 }
 
 export const hashtagsRepository = {
-    dropHashtagsPost,
-    dropAllHashtagsPost,
+    deleteHashtagsPost,
+    deleteAllHashtagsPost,
     insertHashtagsPost,
     selectHashtagsPost,
     selectPostsByHashtag

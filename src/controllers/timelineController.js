@@ -86,7 +86,7 @@ export async function updateTimelinePost(req, res) {
         if (index > -1) {
           hashtagsUpdate.splice(index,1);
         } else {
-          await hashtagsRepository.dropHashtagsPost(hashtag.post_hashtags_id);
+          await hashtagsRepository.deleteHashtagsPost(hashtag.post_hashtags_id);
         }
       }
     }
@@ -119,7 +119,7 @@ export async function deleteTimelinePost(req, res) {
         .send({ message: "The post does not belong to this user!" });
       return;
     }
-    await hashtagsRepository.dropAllHashtagsPost(id);
+    await hashtagsRepository.deleteAllHashtagsPost(id);
     await deleteAllLikesPost(id);
     await deletePost(id, description);
     res.status(200).send({ message: "The post has been deleted!" });
