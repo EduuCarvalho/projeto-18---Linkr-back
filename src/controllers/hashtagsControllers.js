@@ -6,7 +6,7 @@ export async function findPostsByHashtag(req, res) {
     try {
         const posts = await hashtagsRepository.selectPostsByHashtag(hashtag);
 
-        res.send(posts);
+        res.send({ posts });
     } catch (err) {
         res.status(500).send(err.message);
     }
