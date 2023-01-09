@@ -20,7 +20,7 @@ export async function selectUserPosts(userId) {
 
   const posts = await connectionDB.query(`
         SELECT p.id, p.description,
-            u.name, u.picture_url,
+            u.name, u.picture_url, u.id as "ownerId",
             l.url
         FROM posts as p
             JOIN users as u
