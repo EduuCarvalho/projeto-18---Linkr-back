@@ -5,7 +5,13 @@ import {
   insertPost,
   updatePost,
 } from "../repositories/timelineRepository.js";
-import { hashtagsRepository } from "../repositories/hashtagsRepository.js";
+import {
+  deleteAllHashtagsPost,
+  deleteHashtagsPost,
+  insertHashtagsPost,
+  selectHashtagsPost
+} from "../repositories/hashtagsRepository.js";
+import { deleteAllLikesPost } from "../repositories/likesRepository.js";
 
 export async function timelinePost(req, res) {
   const userId = req.user;
@@ -23,7 +29,7 @@ export async function timelinePost(req, res) {
       );
 
       for (const hashtag of hashtags) {
-        await hashtagsRepository.insertHashtagsPost(postId, hashtag.substring(1));
+        await insertHashtagsPost(postId, hashtag.substring(1));
       };
     }
 
@@ -76,7 +82,7 @@ export async function updateTimelinePost(req, res) {
         .map(hashtag => hashtag.substring(1));
     }
 
-    const hashtagsPrevious = await hashtagsRepository.selectHashtagsPost(id);
+    const hashtagsPrevious = await selectHashtagsPost(id);
 
     if (hashtagsPrevious.rowCount) {
       for (const hashtag of hashtagsPrevious.rows) {
@@ -85,13 +91,13 @@ export async function updateTimelinePost(req, res) {
         if (index > -1) {
           hashtagsUpdate.splice(index,1);
         } else {
-          await hashtagsRepository.dropHashtagsPost(hashtag.post_hashtags_id);
+          await deleteHashtagsPost(hashtag.post_hashtags_id);
         }
       }
     }
 
     for (const hashtag of hashtagsUpdate) {
-      await hashtagsRepository.insertHashtagsPost(id, hashtag);
+      await insertHashtagsPost(id, hashtag);
     };
 
     res.status(200).send({ message: "The post has been updated!" });
@@ -118,7 +124,8 @@ export async function deleteTimelinePost(req, res) {
         .send({ message: "The post does not belong to this user!" });
       return;
     }
-    await hashtagsRepository.dropAllHashtagsPost(id);
+    await deleteAllHashtagsPost(id);
+    await deleteAllLikesPost(id);
     await deletePost(id, description);
     res.status(200).send({ message: "The post has been deleted!" });
   } catch (err) {

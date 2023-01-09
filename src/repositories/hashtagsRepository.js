@@ -1,21 +1,21 @@
 import connectionDB from "../database/database.js";
 import urlMetadata from 'url-metadata';
 
-async function dropHashtagsPost(postHashtagsId) {
+export async function deleteHashtagsPost(postHashtagsId) {
     return connectionDB.query(
         `DELETE FROM post_hashtags WHERE id = $1;`,
         [postHashtagsId]
     );
 }
 
-async function dropAllHashtagsPost(postId) {
+export async function deleteAllHashtagsPost(postId) {
     return connectionDB.query(
         `DELETE FROM post_hashtags WHERE post_id = $1;`,
         [postId]
     );
 }
 
-async function insertHashtagsPost(postId, hashtag) {
+export async function insertHashtagsPost(postId, hashtag) {
     let hashtagId;
 
     const hashtagExists = await connectionDB.query(
@@ -40,7 +40,7 @@ async function insertHashtagsPost(postId, hashtag) {
     );
 }
 
-async function selectHashtagsPost(postId) {
+export async function selectHashtagsPost(postId) {
     return connectionDB.query(
         `SELECT h.name, ph.id AS post_hashtags_id
         FROM post_hashtags ph
@@ -50,7 +50,7 @@ async function selectHashtagsPost(postId) {
     );
 }
 
-async function selectPostsByHashtag(hashtag) {
+export async function selectPostsByHashtag(hashtag) {
     const completePosts = [];
 
     const posts = await connectionDB.query(
@@ -104,11 +104,3 @@ async function selectPostsByHashtag(hashtag) {
 
     return completePosts;
 }
-
-export const hashtagsRepository = {
-    dropHashtagsPost,
-    dropAllHashtagsPost,
-    insertHashtagsPost,
-    selectHashtagsPost,
-    selectPostsByHashtag
-};

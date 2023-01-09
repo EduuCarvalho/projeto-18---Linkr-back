@@ -1,10 +1,10 @@
-import { hashtagsRepository } from "../repositories/hashtagsRepository.js";
+import { selectPostsByHashtag } from "../repositories/hashtagsRepository.js";
 
 export async function findPostsByHashtag(req, res) {
     const { hashtag } = req.params;
 
     try {
-        const posts = await hashtagsRepository.selectPostsByHashtag(hashtag);
+        const posts = await selectPostsByHashtag(hashtag);
 
         res.send({ posts });
     } catch (err) {
