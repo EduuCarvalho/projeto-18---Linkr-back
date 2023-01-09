@@ -19,7 +19,7 @@ export async function insertHashtagsPost(postId, hashtag) {
     let hashtagId;
 
     const hashtagExists = await connectionDB.query(
-        `SELECT id FROM hashtags WHERE name = $1;`,
+        `SELECT id FROM hashtags WHERE LOWER(name) = LOWER($1);`,
         [hashtag]
     );
 
@@ -53,53 +53,63 @@ export async function selectHashtagsPost(postId) {
 export async function selectPostsByHashtag(hashtag) {
     const completePosts = [];
 
-    const posts = await connectionDB.query(
-        `SELECT
-            p.id,
-            p.description,
-            u.name,
-            u.picture_url,
-            l.url
-        FROM posts p
-        JOIN post_hashtags ph ON ph.post_id = p.id
-        JOIN hashtags h ON ph.hashtag_id = h.id
-        JOIN users u ON p.user_id = u.id
-        JOIN links l ON p.link_id = l.id
-        WHERE LOWER(h.name) = LOWER($1)
-        ORDER BY id DESC
-        LIMIT 20;`,
+    const hashtagExists = await connectionDB.query(
+        `SELECT id FROM hashtags WHERE LOWER(name) = LOWER($1);`,
         [hashtag]
     );
 
-    const likes = await connectionDB.query(`
-        SELECT u.name, 
-            l.post_id
-        FROM likes as l
-            JOIN users as u
-                ON l.user_id = u.id
-    `);
+    if (hashtagExists.rowCount) {
+        const hashtagId = hashtagExists.rows[0].id;
 
-    for (let i = 0; i < posts.rows.length; i++) {
-        const postLikes = [];
+        const posts = await connectionDB.query(
+            `SELECT
+                p.id,
+                p.description,
+                u.name,
+                u.picture_url,
+                u.id as "ownerId",
+                l.url
+            FROM posts p
+            LEFT JOIN post_hashtags ph ON ph.post_id = p.id
+            JOIN users u ON p.user_id = u.id
+            JOIN links l ON p.link_id = l.id
+            WHERE ph.hashtag_id = ($1)
+            GROUP BY p.id, u.name, u.picture_url, u.id, l.url
+            ORDER BY p.id DESC
+            LIMIT 20;`,
+            [hashtagId]
+        );
 
-        if (likes.rowCount > 0) {
-            for (let j = 0; j < likes.rows.length; j++) {
-                if (posts.rows[i].id === likes.rows[j].post_id) {
-                  postLikes.push(likes.rows[j].name);
+        const likes = await connectionDB.query(`
+            SELECT u.name, 
+                l.post_id
+            FROM likes as l
+                JOIN users as u
+                    ON l.user_id = u.id
+        `);
+
+        for (let i = 0; i < posts.rows.length; i++) {
+            const postLikes = [];
+
+            if (likes.rowCount > 0) {
+                for (let j = 0; j < likes.rows.length; j++) {
+                    if (posts.rows[i].id === likes.rows[j].post_id) {
+                    postLikes.push(likes.rows[j].name);
+                    }
                 }
             }
-        }
 
-        await urlMetadata(posts.rows[i].url).then(response => {
-            completePosts.push({
-                ...posts.rows[i],
-                linkTitle: response.title,
-                linkDescription: response.description,
-                linkImg: response.image,
-                likes: [...postLikes]
-            });
+            await urlMetadata(posts.rows[i].url).then(response => {
+                completePosts.push({
+                    ...posts.rows[i],
+                    linkTitle: response.title,
+                    linkDescription: response.description,
+                    linkImg: response.image,
+                    likes: [...postLikes]
+                });
+            }
+            );
         }
-        );
     }
 
     return completePosts;
