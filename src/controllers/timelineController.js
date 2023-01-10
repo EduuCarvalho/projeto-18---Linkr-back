@@ -1,6 +1,7 @@
 import {
   deletePost,
   findPost,
+  getCountPosts,
   getPosts,
   insertPost,
   updatePost,
@@ -40,11 +41,24 @@ export async function timelinePost(req, res) {
   }
 }
 
-export async function getTimelinePosts(req, res, next) {
+export async function getTimelinePosts(req, res) {
   try {
     const posts = await getPosts();
 
     return res.send({posts}).status(200);
+  } catch (err) {
+    console.log(err);
+    return res.sendStatus(500);
+  }
+}
+
+export async function getCountTimelinePosts(req, res) {
+  const {postId} = req.params;
+
+  try {
+    const countPosts = await getCountPosts(postId);
+
+    return res.send(countPosts).status(200);
   } catch (err) {
     console.log(err);
     return res.sendStatus(500);

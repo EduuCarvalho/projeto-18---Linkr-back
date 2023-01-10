@@ -61,9 +61,21 @@ export async function timelinePostValidation(req, res, next) {
         if (err.code === 'ENOTFOUND') {
             return res.status(422).send('Invalid url');
         }
-        
+
         console.log(err);
         return res.sendStatus(500);
+    }
+
+    next();
+}
+
+export async function countTimelinePostsValidation(req, res, next) {
+    const { postId } = req.params;
+
+    for (let i = 0; i < postId.length; i++) {
+        if (isNaN(parseInt(postId[i]))) {
+            return res.sendStatus(400);
+        }
     }
 
     next();

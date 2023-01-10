@@ -61,6 +61,18 @@ export async function getPosts() {
     return completePosts;
 }
 
+export async function getCountPosts(postId){
+    const countPosts = connectionDB.query(`
+        SELECT COUNT(*) AS "recent posts"
+        FROM posts
+        WHERE id > $1
+    `,
+        [postId]
+    );
+
+    return (await countPosts).rows[0]
+}
+
 export function findPost(post_id) {
     return connectionDB.query("SELECT * FROM posts WHERE id = $1", [post_id]);
 }
