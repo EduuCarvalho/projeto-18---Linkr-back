@@ -1,5 +1,5 @@
-import { insertSharing } from "../repositories/sharingRepository";
-import { findPost } from "../repositories/timelineRepository";
+import { insertSharing } from "../repositories/sharingRepository.js";
+import { findPost } from "../repositories/timelineRepository.js";
 
 export async function postSharing(req, res) {
   const userId = req.user;

@@ -78,7 +78,5 @@ export async function countTimelinePostsValidation(req, res, next) {
         }
     }
 
-
-
     next();
 }
