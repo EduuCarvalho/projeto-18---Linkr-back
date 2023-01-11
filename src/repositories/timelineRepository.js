@@ -34,14 +34,6 @@ export async function getPosts() {
         LIMIT 20
     `);
 
-  const likes = await connectionDB.query(`
-        SELECT u.name, 
-            l.post_id
-        FROM likes as l
-            JOIN users as u
-                ON l.user_id = u.id
-    `);
-
   const { rows: whoSharedList } = await findWhoShared();
   const whoSharedHash = {};
   for (let i = 0; i < whoSharedList.length; i++) {
@@ -56,6 +48,14 @@ export async function getPosts() {
         ? whoSharedHash[post["who_shared_id"]]
         : null;
   });
+
+  const likes = await connectionDB.query(`
+        SELECT u.name, 
+            l.post_id
+        FROM likes as l
+            JOIN users as u
+                ON l.user_id = u.id
+    `);
 
   for (let i = 0; i < posts.rows.length; i++) {
     const postLikes = [];
