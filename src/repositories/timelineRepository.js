@@ -29,7 +29,7 @@ export async function getPosts() {
         WHERE u.id = s.user_id OR s.user_id IS NULL
         GROUP BY p.id, u.id, s.user_id, l.url
         ORDER BY id DESC
-        LIMIT 20
+        LIMIT 10
     `);
 
     const likes = await connectionDB.query(`
