@@ -11,7 +11,7 @@ export async function insertPost(userId, linkId, description) {
     );
 }
 
-export async function getPosts() {
+export async function getPosts(ref) {
     const completePosts = [];
 
     const posts = await connectionDB.query(`
@@ -26,11 +26,13 @@ export async function getPosts() {
                 ON p.link_id = l.id
             LEFT JOIN shares as s
                 ON s.post_id = p.id
-        WHERE u.id = s.user_id OR s.user_id IS NULL
+        WHERE u.id = s.user_id OR s.user_id IS NULL AND p.id < $1
         GROUP BY p.id, u.id, s.user_id, l.url
         ORDER BY id DESC
         LIMIT 10
-    `);
+    `,
+        [ref]
+    );
 
     const likes = await connectionDB.query(`
         SELECT u.name, 

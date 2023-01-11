@@ -69,6 +69,29 @@ export async function timelinePostValidation(req, res, next) {
     next();
 }
 
+export async function getTimelinePostsValidation(req, res, next) {
+    const ref = req.query.ref;
+
+    if (ref) {
+        for (let i = 0; i < ref.length; i++) {
+            if (isNaN(parseInt(ref[i]))) {
+                return res.sendStatus(400);
+            }
+        }
+
+        req.ref = ref;
+    } else {
+        const maxPostId = await connectionDB.query(`
+            SELECT MAX(id) 
+            FROM posts
+        `);
+
+        req.ref = parseInt(maxPostId.rows[0].max) + 1;
+    }
+
+    next();
+}
+
 export async function countTimelinePostsValidation(req, res, next) {
     const { postId } = req.params;
 
