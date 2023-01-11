@@ -6,6 +6,7 @@ import users from "./users.js";
 import logInRouter from "./Login.js";
 import hashtags from "./hashtags.js";
 import sharing from "./sharing.js";
+import comments from "./comments.js";
 
 
 const router = Router();
@@ -23,5 +24,7 @@ router.use(trending);
 router.use(hashtags);
 
 router.use(sharing);
+
+router.use(comments);
 
 export default router;
