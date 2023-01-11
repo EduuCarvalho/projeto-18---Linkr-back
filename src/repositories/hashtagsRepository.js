@@ -67,14 +67,17 @@ export async function selectPostsByHashtag(hashtag) {
                 p.description,
                 u.name,
                 u.picture_url,
-                u.id as "ownerId",
-                l.url
+                u.id AS "ownerId",
+                l.url,
+                COALESCE(s.user_id, NULL) AS "who_shared_id",
+                COUNT(s.post_id) AS shares
             FROM posts p
-            LEFT JOIN post_hashtags ph ON ph.post_id = p.id
+            JOIN post_hashtags ph ON ph.post_id = p.id
             JOIN users u ON p.user_id = u.id
             JOIN links l ON p.link_id = l.id
-            WHERE ph.hashtag_id = ($1)
-            GROUP BY p.id, u.name, u.picture_url, u.id, l.url
+            LEFT JOIN shares s ON s.post_id = p.id
+            WHERE ph.hashtag_id = $1 AND (u.id = s.user_id OR s.user_id IS NULL)
+            GROUP BY p.id, u.name, u.picture_url, u.id, l.url, s.user_id
             ORDER BY p.id DESC
             LIMIT 20;`,
             [hashtagId]
