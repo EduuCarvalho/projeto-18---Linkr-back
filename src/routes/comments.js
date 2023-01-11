@@ -6,6 +6,6 @@ import { Router } from "express";
 
 const router = Router();
 
-router.post("/comments", authValidation, commentsPostValidation, create);
+router.post("/comment", authValidation, commentsPostValidation, create);
 
 export default router;

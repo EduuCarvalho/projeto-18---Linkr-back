@@ -6,6 +6,8 @@ export async function commentsPostValidation(req, res, next) {
 
     if (error) return res.status(422).send(error.details.map(detail => detail.message));
 
+    const { post_id, user_id } = req.body;
+
     try {
         const postExists = await connectionDB.query(
             `SELECT * 
@@ -18,7 +20,7 @@ export async function commentsPostValidation(req, res, next) {
 
         const userExists = await connectionDB.query(
             `SELECT * 
-            FROM user
+            FROM users
             WHERE id = $1;`,
             [user_id]
         );
