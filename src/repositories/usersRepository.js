@@ -1,5 +1,6 @@
 import urlMetadata from "url-metadata";
 import connectionDB from "../database/database.js";
+import { findWhoShared } from "./sharingRepository.js";
 
 export function searchUsers(pattern) {
   return connectionDB.query(
@@ -34,6 +35,21 @@ export async function selectUserPosts(userId) {
         GROUP BY p.id, u.id, s.user_id, l.url
         ORDER BY id DESC
     `, [userId]);
+
+  const { rows: whoSharedList } = await findWhoShared();
+  const whoSharedHash = {};
+  for (let i = 0; i < whoSharedList.length; i++) {
+    whoSharedHash[whoSharedList[i]["who_shared_id"]] =
+      whoSharedList[i]["who_shared_name"];
+  }
+
+  posts.rows.forEach((post) => {
+    if (post["who_shared_id"] === null) post["who_shared_name"] = null;
+    else
+      post["who_shared_name"] = whoSharedHash[post["who_shared_id"]]
+        ? whoSharedHash[post["who_shared_id"]]
+        : null;
+  });
 
   const likes = await connectionDB.query(`
         SELECT u.name, 

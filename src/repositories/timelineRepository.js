@@ -1,20 +1,22 @@
 import connectionDB from "../database/database.js";
-import urlMetadata from 'url-metadata';
+import urlMetadata from "url-metadata";
+import { findWhoShared } from "./sharingRepository.js";
 
 export async function insertPost(userId, linkId, description) {
-    return connectionDB.query(`
+  return connectionDB.query(
+    `
         INSERT INTO posts (user_id, link_id, description)
         VALUES ($1, $2, $3)
         RETURNING id
     `,
-        [userId, linkId, description]
-    );
+    [userId, linkId, description]
+  );
 }
 
 export async function getPosts() {
-    const completePosts = [];
+  const completePosts = [];
 
-    const posts = await connectionDB.query(`
+  const posts = await connectionDB.query(`
         SELECT p.id, p.description,
             u.name, u.picture_url, u.id as "ownerId",
             l.url,
@@ -32,7 +34,22 @@ export async function getPosts() {
         LIMIT 20
     `);
 
-    const likes = await connectionDB.query(`
+  const { rows: whoSharedList } = await findWhoShared();
+  const whoSharedHash = {};
+  for (let i = 0; i < whoSharedList.length; i++) {
+    whoSharedHash[whoSharedList[i]["who_shared_id"]] =
+      whoSharedList[i]["who_shared_name"];
+  }
+
+  posts.rows.forEach((post) => {
+    if (post["who_shared_id"] === null) post["who_shared_name"] = null;
+    else
+      post["who_shared_name"] = whoSharedHash[post["who_shared_id"]]
+        ? whoSharedHash[post["who_shared_id"]]
+        : null;
+  });
+
+  const likes = await connectionDB.query(`
         SELECT u.name, 
             l.post_id
         FROM likes as l
@@ -40,30 +57,29 @@ export async function getPosts() {
                 ON l.user_id = u.id
     `);
 
-    for (let i = 0; i < posts.rows.length; i++) {
-        const postLikes = [];
+  for (let i = 0; i < posts.rows.length; i++) {
+    const postLikes = [];
 
-        if (likes.rowCount > 0) {
-            for (let j = 0; j < likes.rows.length; j++) {
-                if (posts.rows[i].id === likes.rows[j].post_id) {
-                    postLikes.push(likes.rows[j].name);
-                }
-            }
+    if (likes.rowCount > 0) {
+      for (let j = 0; j < likes.rows.length; j++) {
+        if (posts.rows[i].id === likes.rows[j].post_id) {
+          postLikes.push(likes.rows[j].name);
         }
-
-        await urlMetadata(posts.rows[i].url).then(response => {
-            completePosts.push({
-                ...posts.rows[i],
-                linkTitle: response.title,
-                linkDescription: response.description,
-                linkImg: response.image,
-                likes: [...postLikes]
-            });
-        }
-        );
+      }
     }
 
-    return completePosts;
+    await urlMetadata(posts.rows[i].url).then((response) => {
+      completePosts.push({
+        ...posts.rows[i],
+        linkTitle: response.title,
+        linkDescription: response.description,
+        linkImg: response.image,
+        likes: [...postLikes],
+      });
+    });
+  }
+
+  return completePosts;
 }
 
 export async function getCountPosts(postId){
@@ -72,23 +88,23 @@ export async function getCountPosts(postId){
         FROM posts
         WHERE id > $1
     `,
-        [postId]
-    );
+    [postId]
+  );
 
-    return (await countPosts).rows[0]
+  return (await countPosts).rows[0];
 }
 
 export function findPost(post_id) {
-    return connectionDB.query("SELECT * FROM posts WHERE id = $1", [post_id]);
+  return connectionDB.query("SELECT * FROM posts WHERE id = $1", [post_id]);
 }
 
 export function updatePost(post_id, description) {
-    return connectionDB.query("UPDATE posts SET description = $1 WHERE id = $2", [
-        description,
-        post_id,
-    ]);
+  return connectionDB.query("UPDATE posts SET description = $1 WHERE id = $2", [
+    description,
+    post_id,
+  ]);
 }
 
 export function deletePost(post_id) {
-    return connectionDB.query("DELETE FROM posts WHERE id = $1", [post_id]);
+  return connectionDB.query("DELETE FROM posts WHERE id = $1", [post_id]);
 }
