@@ -23,7 +23,8 @@ export async function selectUserPosts(userId) {
         SELECT p.id, p.description,
             u.name, u.picture_url, u.id as "ownerId",
             l.url,
-            COALESCE(s.user_id, NULL) as "who_shared_id", COUNT(s.post_id) as shares
+            COALESCE(s.user_id, NULL) as "who_shared_id", COUNT(s.post_id) as shares,
+            COALESCE(COUNT(c.id), 0) as "total_comments"
         FROM posts as p
             JOIN users as u
                 ON p.user_id = u.id
@@ -31,6 +32,8 @@ export async function selectUserPosts(userId) {
                 ON p.link_id = l.id
             LEFT JOIN shares as s
                 ON s.post_id = p.id
+            LEFT JOIN comments c
+                ON c.post_id = p.id
         WHERE u.id = $1 OR s.user_id = $1
         GROUP BY p.id, u.id, s.user_id, l.url
         ORDER BY id DESC
