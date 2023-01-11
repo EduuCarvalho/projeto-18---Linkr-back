@@ -14,6 +14,7 @@ import {
 } from "../repositories/hashtagsRepository.js";
 import { deleteAllLikesPost } from "../repositories/likesRepository.js";
 import { deleteAllCommentsPost } from "../repositories/commentsRepository.js";
+import { deleteAllsharingPost } from "../repositories/sharingRepository.js";
 
 export async function timelinePost(req, res) {
   const userId = req.user;
@@ -142,6 +143,7 @@ export async function deleteTimelinePost(req, res) {
     await deleteAllHashtagsPost(id);
     await deleteAllLikesPost(id);
     await deleteAllCommentsPost(id);
+    await deleteAllsharingPost(id);
     await deletePost(id, description);
     res.status(200).send({ message: "The post has been deleted!" });
   } catch (err) {
