@@ -26,11 +26,17 @@ export async function selectUserPosts(userId, ref) {
             COALESCE(s.user_id, NULL) as "who_shared_id",
             COALESCE(COUNT(c.id), 0) as "total_comments",
             COALESCE(
-                json_agg(
-                  json_build_object('comment_id', c.id, 'user_name', un.name, 'comment', c.comment, 'author', COALESCE(u.id = un.id, true))
-                ) FILTER (WHERE c.* IS NOT NULL),
-                '[]'
-            ) as "comments"
+              json_agg(
+                  json_build_object(
+                    'comment_id', c.id,
+                    'user_picture_url', un.picture_url, 
+                    'user_name', un.name,
+                    'comment', c.comment,
+                    'author_post', COALESCE(u.id = un.id, true)
+                  )
+              ) FILTER (WHERE c.* IS NOT NULL),
+              '[]'
+          ) as "comments"
         FROM posts as p
             JOIN users as u
                 ON p.user_id = u.id
