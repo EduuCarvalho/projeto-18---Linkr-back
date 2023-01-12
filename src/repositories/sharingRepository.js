@@ -23,3 +23,14 @@ export async function findWhoShared(){
         ON s.user_id = u.id
   `);
 }
+
+export async function findRepostsNumber(){
+  return connectionDB.query(`
+    SELECT p.id as post_id,
+        COUNT(s.user_id) AS total_reposts
+    FROM posts p
+      LEFT JOIN shares s
+        ON p.id = s.user_id
+    GROUP BY p.id 
+  `);
+}

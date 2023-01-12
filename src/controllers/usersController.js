@@ -1,3 +1,4 @@
+import { findRepostsNumber } from "../repositories/sharingRepository.js";
 import { searchUsers, selectUser, selectUserPosts } from "../repositories/usersRepository.js";
 
 export async function getUsersBySearch(req, res) {
@@ -25,7 +26,8 @@ export async function getUserPosts(req, res) {
       return;
     }
     const posts = await selectUserPosts(id, ref);
-    res.status(200).send({username: user.name, posts});
+    const shares = await findRepostsNumber();
+    res.status(200).send({username: user.name, posts, shares});
   } catch (err) {
     console.log(err);
     return res.sendStatus(500);

@@ -14,7 +14,7 @@ import {
 } from "../repositories/hashtagsRepository.js";
 import { deleteAllLikesPost } from "../repositories/likesRepository.js";
 import { deleteAllCommentsPost } from "../repositories/commentsRepository.js";
-import { deleteAllsharingPost } from "../repositories/sharingRepository.js";
+import { deleteAllsharingPost, findRepostsNumber } from "../repositories/sharingRepository.js";
 
 export async function timelinePost(req, res) {
   const userId = req.user;
@@ -48,8 +48,8 @@ export async function getTimelinePosts(req, res) {
 
   try {
     const posts = await getPosts(ref);
-
-    return res.send({posts}).status(200);
+    const shares = await findRepostsNumber();
+    return res.status(200).send({ posts, shares });
   } catch (err) {
     console.log(err);
     return res.sendStatus(500);
