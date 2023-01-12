@@ -20,7 +20,19 @@ export async function getPosts(ref) {
             u.name, u.picture_url, u.id as "ownerId",
             l.url,
             COALESCE(s.user_id, NULL) as "who_shared_id", COUNT(s.post_id) as shares,
-            COALESCE(COUNT(c.id), 0) as "total_comments"
+            COALESCE(COUNT(c.id), 0) as "total_comments",
+            COALESCE(
+                json_agg(
+                    json_build_object(
+                      'comment_id', c.id,
+                      'user_picture_url', un.picture_url, 
+                      'user_name', un.name,
+                      'comment', c.comment,
+                      'author_post', COALESCE(u.id = un.id, true)
+                    )
+                ) FILTER (WHERE c.* IS NOT NULL),
+                '[]'
+            ) as "comments"
         FROM posts as p
             JOIN users as u
                 ON p.user_id = u.id
@@ -30,6 +42,7 @@ export async function getPosts(ref) {
                 ON s.post_id = p.id
             LEFT JOIN comments c
                 ON c.post_id = p.id
+            LEFT JOIN users un ON c.user_id = un.id
         WHERE p.id < $1 AND (u.id = s.user_id OR s.user_id IS NULL)
         GROUP BY p.id, u.id, s.user_id, l.url
         ORDER BY id DESC
