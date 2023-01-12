@@ -23,7 +23,7 @@ export async function getPosts(ref) {
             COALESCE(COUNT(c.id), 0) as "total_comments",
             COALESCE(
                 json_agg(
-                    json_build_object('name', un.name, 'comment', c.comment, 'author', COALESCE(u.id = un.id, true))
+                    json_build_object('comment_id', c.id, 'user_name', un.name, 'comment', c.comment, 'author', COALESCE(u.id = un.id, true))
                 ) FILTER (WHERE c.* IS NOT NULL),
                 '[]'
             ) as "comments"
