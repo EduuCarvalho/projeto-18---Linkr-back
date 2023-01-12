@@ -44,8 +44,10 @@ export async function timelinePost(req, res) {
 }
 
 export async function getTimelinePosts(req, res) {
+  const ref = req.ref;
+
   try {
-    const posts = await getPosts();
+    const posts = await getPosts(ref);
 
     return res.send({posts}).status(200);
   } catch (err) {

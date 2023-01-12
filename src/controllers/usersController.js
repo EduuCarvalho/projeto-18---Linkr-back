@@ -15,6 +15,7 @@ export async function getUsersBySearch(req, res) {
 
 export async function getUserPosts(req, res) {
   const { id } = req.params;
+  const ref = req.ref;
 
   try {
     const { rows } = await selectUser(id);
@@ -23,7 +24,7 @@ export async function getUserPosts(req, res) {
       res.status(404).send({ message: "The user doesn't exist!" });
       return;
     }
-    const posts = await selectUserPosts(id);
+    const posts = await selectUserPosts(id, ref);
     res.status(200).send({username: user.name, posts});
   } catch (err) {
     console.log(err);

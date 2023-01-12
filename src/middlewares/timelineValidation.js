@@ -69,6 +69,52 @@ export async function timelinePostValidation(req, res, next) {
     next();
 }
 
+export async function getTimelinePostsValidation(req, res, next) {
+    const ref = req.query.ref;
+    const { id } = req.params;
+
+    if (ref) {
+        for (let i = 0; i < ref.length; i++) {
+            if (isNaN(parseInt(ref[i]))) {
+                return res.sendStatus(400);
+            }
+        }
+
+        let minPostId;
+
+        if(id){
+            minPostId = await connectionDB.query(`
+                SELECT MIN(id) AS min
+                FROM posts
+                WHERE user_id = $1
+            `,
+                [id]
+            );
+        }else{
+            minPostId = await connectionDB.query(`
+                SELECT MIN(id) AS min
+                FROM posts
+            `);
+        }
+
+
+        if(parseInt(ref) === parseInt(minPostId.rows[0].min)){
+            return res.status(200).send('limit rechead');
+        }
+
+        req.ref = ref;
+    } else {
+        const maxPostId = await connectionDB.query(`
+            SELECT MAX(id) 
+            FROM posts
+        `);
+
+        req.ref = parseInt(maxPostId.rows[0].max) + 1;
+    }
+
+    next();
+}
+
 export async function countTimelinePostsValidation(req, res, next) {
     const { postId } = req.params;
 

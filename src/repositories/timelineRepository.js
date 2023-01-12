@@ -12,9 +12,8 @@ export async function insertPost(userId, linkId, description) {
     [userId, linkId, description]
   );
 }
-
-export async function getPosts() {
-  const completePosts = [];
+export async function getPosts(ref) {
+    const completePosts = [];
 
   const posts = await connectionDB.query(`
         SELECT p.id, p.description,
@@ -31,11 +30,13 @@ export async function getPosts() {
                 ON s.post_id = p.id
             LEFT JOIN comments c
                 ON c.post_id = p.id
-        WHERE u.id = s.user_id OR s.user_id IS NULL
+        WHERE p.id < $1 AND (u.id = s.user_id OR s.user_id IS NULL)
         GROUP BY p.id, u.id, s.user_id, l.url
         ORDER BY id DESC
-        LIMIT 20
-    `);
+        LIMIT 10
+    `,
+        [ref]
+    );
 
   const { rows: whoSharedList } = await findWhoShared();
   const whoSharedHash = {};
