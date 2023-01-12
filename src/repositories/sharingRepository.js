@@ -27,10 +27,10 @@ export async function findWhoShared(){
 export async function findRepostsNumber(){
   return connectionDB.query(`
     SELECT p.id as post_id,
-        COUNT(s.user_id) AS total_reposts
+        COUNT(s.id) AS total_reposts
     FROM posts p
       LEFT JOIN shares s
-        ON p.id = s.user_id
+        ON p.id = s.post_id
     GROUP BY p.id 
   `);
 }
