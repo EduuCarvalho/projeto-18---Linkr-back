@@ -1,5 +1,6 @@
 import urlMetadata from "url-metadata";
 import connectionDB from "../database/database.js";
+import { findWhoShared } from "./sharingRepository.js";
 
 export function searchUsers(pattern) {
   return connectionDB.query(
@@ -20,21 +21,38 @@ export async function selectUserPosts(userId) {
 
   const posts = await connectionDB.query(`
       SELECT p.id, p.description,
-      u.name, u.picture_url, u.id as "ownerId",
-      l.url,
-      COALESCE(s.user_id, NULL) as "who_shared_id", COUNT(s.post_id) as shares
-    FROM posts as p
-      JOIN users as u
-          ON p.user_id = u.id
-      JOIN links as l
-          ON p.link_id = l.id
-      LEFT JOIN shares as s
-          ON s.post_id = p.id
-    WHERE u.id = $1 OR s.user_id = $1
-    GROUP BY p.id, u.id, s.user_id, l.url, s.created_at
-    ORDER BY COALESCE(s.created_at, p.created_at) DESC;
-
+          u.name, u.picture_url, u.id as "ownerId",
+          l.url,
+          COALESCE(s.user_id, NULL) as "who_shared_id", COUNT(s.post_id) as shares,
+          COALESCE(COUNT(c.id), 0) as "total_comments"
+      FROM posts as p
+          JOIN users as u
+              ON p.user_id = u.id
+          JOIN links as l
+              ON p.link_id = l.id
+          LEFT JOIN shares as s
+              ON s.post_id = p.id
+          LEFT JOIN comments c
+              ON c.post_id = p.id
+      WHERE u.id = $1 OR s.user_id = $1
+      GROUP BY p.id, u.id, s.user_id, l.url, s.created_at
+      ORDER BY COALESCE(s.created_at, p.created_at) DESC
     `, [userId]);
+
+  const { rows: whoSharedList } = await findWhoShared();
+  const whoSharedHash = {};
+  for (let i = 0; i < whoSharedList.length; i++) {
+    whoSharedHash[whoSharedList[i]["who_shared_id"]] =
+      whoSharedList[i]["who_shared_name"];
+  }
+
+  posts.rows.forEach((post) => {
+    if (post["who_shared_id"] === null) post["who_shared_name"] = null;
+    else
+      post["who_shared_name"] = whoSharedHash[post["who_shared_id"]]
+        ? whoSharedHash[post["who_shared_id"]]
+        : null;
+  });
 
   const likes = await connectionDB.query(`
         SELECT u.name, 

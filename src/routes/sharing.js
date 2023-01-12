@@ -4,6 +4,6 @@ import authValidation from "../middlewares/authValidation.js";
 
 const sharing = Router();
 
-sharing.post("/share", authValidation, postSharing);
+sharing.post("/share/:id", authValidation, postSharing);
 
 export default sharing;
