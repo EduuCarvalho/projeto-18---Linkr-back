@@ -81,7 +81,7 @@ export async function selectPostsByHashtag(hashtag, ref) {
             WHERE ph.hashtag_id = $1 AND p.id < $2 AND (u.id = s.user_id OR s.user_id IS NULL)
             GROUP BY p.id, u.name, u.picture_url, u.id, l.url, s.user_id
             ORDER BY p.id DESC
-            LIMIT 20;`,
+            LIMIT 10;`,
             [hashtagId, ref]
         );
 
