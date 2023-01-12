@@ -37,6 +37,7 @@ export async function selectUserPosts(userId, ref) {
         WHERE p.id < $2 AND (u.id = $1 OR s.user_id = $1)
         GROUP BY p.id, u.id, s.user_id, l.url
         ORDER BY id DESC
+        LIMIT 10
     `, [userId, ref]);
 
   const { rows: whoSharedList } = await findWhoShared();
