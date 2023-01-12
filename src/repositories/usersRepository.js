@@ -23,7 +23,7 @@ export async function selectUserPosts(userId) {
         SELECT p.id, p.description,
             u.name, u.picture_url, u.id as "ownerId",
             l.url,
-            COALESCE(s.user_id, NULL) as "who_shared_id", COUNT(s.post_id) as shares,
+            COALESCE(s.user_id, NULL) as "who_shared_id",
             COALESCE(COUNT(c.id), 0) as "total_comments"
         FROM posts as p
             JOIN users as u
