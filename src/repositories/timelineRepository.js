@@ -26,7 +26,7 @@ export async function getPosts(ref) {
                 ON p.link_id = l.id
             LEFT JOIN shares as s
                 ON s.post_id = p.id
-        WHERE u.id = s.user_id OR s.user_id IS NULL AND p.id < $1
+        WHERE p.id < $1 AND (u.id = s.user_id OR s.user_id IS NULL)
         GROUP BY p.id, u.id, s.user_id, l.url
         ORDER BY id DESC
         LIMIT 10

@@ -79,6 +79,15 @@ export async function getTimelinePostsValidation(req, res, next) {
             }
         }
 
+        const minPostId = await connectionDB.query(`
+            SELECT MIN(id) AS min
+            FROM posts
+        `);
+
+        if(parseInt(ref) === parseInt(minPostId.rows[0].min)){
+            return res.status(200).send('limit rechead');
+        }
+
         req.ref = ref;
     } else {
         const maxPostId = await connectionDB.query(`
