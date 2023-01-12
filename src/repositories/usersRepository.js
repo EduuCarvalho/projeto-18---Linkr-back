@@ -16,7 +16,7 @@ export function selectUser(id) {
   );
 }
 
-export async function selectUserPosts(userId) {
+export async function selectUserPosts(userId, ref) {
   const completePosts = [];
 
   const posts = await connectionDB.query(`
@@ -34,10 +34,10 @@ export async function selectUserPosts(userId) {
                 ON s.post_id = p.id
             LEFT JOIN comments c
                 ON c.post_id = p.id
-        WHERE u.id = $1 OR s.user_id = $1
+        WHERE p.id < $2 AND (u.id = $1 OR s.user_id = $1)
         GROUP BY p.id, u.id, s.user_id, l.url
         ORDER BY id DESC
-    `, [userId]);
+    `, [userId, ref]);
 
   const { rows: whoSharedList } = await findWhoShared();
   const whoSharedHash = {};

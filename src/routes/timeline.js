@@ -6,10 +6,13 @@ import { countTimelinePostsValidation, getTimelinePostsValidation, timelinePostV
 const timeline = Router();
 
 timeline.post("/timeline", authValidation, timelinePostValidation, timelinePost);
+
 timeline.get("/timeline", authValidation, getTimelinePostsValidation, getTimelinePosts);
+
 timeline.get("/timeline/:postId", authValidation, countTimelinePostsValidation, getCountTimelinePosts);
 
 timeline.patch("/timeline/:id", authValidation, updateTimelinePost);
+
 timeline.delete("/timeline/:id", authValidation, deleteTimelinePost);
 
 export default timeline;

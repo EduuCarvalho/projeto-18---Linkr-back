@@ -71,6 +71,7 @@ export async function timelinePostValidation(req, res, next) {
 
 export async function getTimelinePostsValidation(req, res, next) {
     const ref = req.query.ref;
+    const { id } = req.params;
 
     if (ref) {
         for (let i = 0; i < ref.length; i++) {
@@ -79,10 +80,23 @@ export async function getTimelinePostsValidation(req, res, next) {
             }
         }
 
-        const minPostId = await connectionDB.query(`
-            SELECT MIN(id) AS min
-            FROM posts
-        `);
+        let minPostId;
+
+        if(id){
+            minPostId = await connectionDB.query(`
+                SELECT MIN(id) AS min
+                FROM posts
+                WHERE user_id = $1
+            `,
+                [id]
+            );
+        }else{
+            minPostId = await connectionDB.query(`
+                SELECT MIN(id) AS min
+                FROM posts
+            `);
+        }
+
 
         if(parseInt(ref) === parseInt(minPostId.rows[0].min)){
             return res.status(200).send('limit rechead');
