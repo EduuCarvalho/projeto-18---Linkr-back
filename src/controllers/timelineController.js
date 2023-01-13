@@ -46,9 +46,10 @@ export async function timelinePost(req, res) {
 
 export async function getTimelinePosts(req, res) {
   const ref = req.ref;
+  const userId = req.user;
 
   try {
-    const posts = await getPosts(ref);
+    const posts = await getPosts(ref, userId);
     const { rows: shares } = await findRepostsNumber();
     const sharesHash = {...hashRepostsNumber(shares)};
     return res.status(200).send({ posts, sharesHash });

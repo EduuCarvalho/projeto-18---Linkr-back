@@ -55,7 +55,7 @@ export async function selectUserPosts(userId, ref) {
             LEFT JOIN comments c
                 ON c.post_id = p.id
             LEFT JOIN users un ON c.user_id = un.id
-        WHERE p.id < $2 AND (u.id = $1 OR s.user_id = $1)
+        WHERE p.id < $2 AND u.id = $1
         GROUP BY p.id, u.id, s.user_id, l.url
         ORDER BY id DESC
         LIMIT 10

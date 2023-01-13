@@ -12,14 +12,14 @@ export async function insertPost(userId, linkId, description) {
     [userId, linkId, description]
   );
 }
-export async function getPosts(ref) {
+export async function getPosts(ref, userId) {
     const completePosts = [];
 
   const posts = await connectionDB.query(`
         SELECT p.id, p.description,
             u.name, u.picture_url, u.id as "ownerId",
             l.url,
-            COALESCE(s.user_id, NULL) as "who_shared_id", COUNT(s.post_id) as shares,
+            COALESCE(s.user_id, NULL) as "who_shared_id",
             COALESCE(COUNT(c.id), 0) as "total_comments",
             COALESCE(
                 json_agg(
@@ -42,13 +42,15 @@ export async function getPosts(ref) {
                 ON s.post_id = p.id
             LEFT JOIN comments c
                 ON c.post_id = p.id
-            LEFT JOIN users un ON c.user_id = un.id
-        WHERE p.id < $1 AND (u.id = s.user_id OR s.user_id IS NULL)
+            LEFT JOIN following f
+                ON p.user_id = f.user_id
+            LEFT JOIN users un ON c.user_id = u.id
+        WHERE p.id < $1 AND (f.follower_id = $2)
         GROUP BY p.id, u.id, s.user_id, l.url
         ORDER BY id DESC
         LIMIT 10
     `,
-        [ref]
+        [ref, userId]
     );
 
   const { rows: whoSharedList } = await findWhoShared();
