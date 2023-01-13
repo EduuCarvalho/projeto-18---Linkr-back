@@ -2,10 +2,17 @@ import urlMetadata from "url-metadata";
 import connectionDB from "../database/database.js";
 import { findWhoShared } from "./sharingRepository.js";
 
-export function searchUsers(pattern) {
+export function searchUsers(userId, pattern) {
   return connectionDB.query(
-    'SELECT id, name, "picture_url" FROM users WHERE name LIKE $1',
-    [pattern + "%"]
+    `SELECT
+      u.id,
+      u.name,
+      u.picture_url,
+      COALESCE(u.id = f.user_id, true) AS is_following
+    FROM users u
+    LEFT JOIN following f ON f.follower_id = $1
+    WHERE LOWER(name) LIKE LOWER($2)`,
+    [userId, pattern + "%"]
   );
 }
 
