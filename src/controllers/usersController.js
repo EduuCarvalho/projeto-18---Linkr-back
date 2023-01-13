@@ -7,7 +7,7 @@ export async function getUsersBySearch(req, res) {
   const { name } = req.query;
 
   try {
-    const { rows: filteredUsers } = await searchUsers(name);
+    const { rows: filteredUsers } = await searchUsers(req.user, name);
 
     res.send(filteredUsers);
   } catch (err) {
