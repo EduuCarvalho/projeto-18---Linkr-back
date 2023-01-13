@@ -7,9 +7,16 @@ export function insertFollowing(userId, followerId){
       );
 }
 
-export async function deleteFollowing(userId, followerId) {
+export function deleteFollowing(userId, followerId) {
   return connectionDB.query(
       `DELETE FROM following WHERE user_id = $1 AND follower_id = $2;`,
       [userId, followerId]
   );
+}
+
+export function selectFollowing(userId, followerId){
+  return connectionDB.query(
+    `SELECT * FROM following WHERE user_id = $1 AND follower_id = $2;`,
+    [userId, followerId]
+);
 }
