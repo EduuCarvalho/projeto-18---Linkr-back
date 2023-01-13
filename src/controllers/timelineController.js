@@ -61,9 +61,10 @@ export async function getTimelinePosts(req, res) {
 
 export async function getCountTimelinePosts(req, res) {
   const {postId} = req.params;
+  const userId = req.user;
 
   try {
-    const countPosts = await getCountPosts(postId);
+    const countPosts = await getCountPosts(postId, userId);
 
     return res.send(countPosts).status(200);
   } catch (err) {
