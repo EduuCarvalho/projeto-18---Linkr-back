@@ -31,20 +31,7 @@ export async function selectUserPosts(userId, ref) {
         SELECT p.id, p.description,
             u.name, u.picture_url, u.id as "ownerId",
             l.url,
-            COALESCE(s.user_id, NULL) as "who_shared_id",
-            COALESCE(COUNT(c.id), 0) as "total_comments",
-            COALESCE(
-              json_agg(
-                  json_build_object(
-                    'comment_id', c.id,
-                    'user_picture_url', un.picture_url, 
-                    'user_name', un.name,
-                    'comment', c.comment,
-                    'author_post', COALESCE(u.id = un.id, true)
-                  )
-              ) FILTER (WHERE c.* IS NOT NULL),
-              '[]'
-          ) as "comments"
+            COALESCE(s.user_id, NULL) as "who_shared_id"
         FROM posts as p
             JOIN users as u
                 ON p.user_id = u.id
@@ -52,9 +39,6 @@ export async function selectUserPosts(userId, ref) {
                 ON p.link_id = l.id
             LEFT JOIN shares as s
                 ON s.post_id = p.id
-            LEFT JOIN comments c
-                ON c.post_id = p.id
-            LEFT JOIN users un ON c.user_id = un.id
         WHERE p.id < $2 AND u.id = $1
         GROUP BY p.id, u.id, s.user_id, l.url
         ORDER BY id DESC
