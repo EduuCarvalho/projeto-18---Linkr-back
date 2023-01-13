@@ -1,3 +1,4 @@
+import { selectFollowing } from "../repositories/followingRepository.js";
 import { findRepostsNumber } from "../repositories/sharingRepository.js";
 import { searchUsers, selectUser, selectUserPosts } from "../repositories/usersRepository.js";
 import { hashRepostsNumber } from "../utils/sharingUtils.js";
@@ -17,6 +18,7 @@ export async function getUsersBySearch(req, res) {
 
 export async function getUserPosts(req, res) {
   const { id } = req.params;
+  const userId = req.user;
   const ref = req.ref;
 
   try {
@@ -28,8 +30,9 @@ export async function getUserPosts(req, res) {
     }
     const posts = await selectUserPosts(id, ref);
     const { rows : shares } = await findRepostsNumber();
+    const { rows: following } = await selectFollowing(id, userId);
     const sharesHash = {...hashRepostsNumber(shares)};
-    res.status(200).send({username: user.name, posts, sharesHash});
+    res.status(200).send({username: user.name, posts, sharesHash, isFollowing: following.length !== 0});
   } catch (err) {
     console.log(err);
     return res.sendStatus(500);
