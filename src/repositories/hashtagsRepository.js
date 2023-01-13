@@ -1,5 +1,6 @@
 import connectionDB from "../database/database.js";
 import urlMetadata from 'url-metadata';
+import { findWhoShared } from "./sharingRepository.js";
 
 export async function deleteHashtagsPost(postHashtagsId) {
     return connectionDB.query(
@@ -70,33 +71,33 @@ export async function selectPostsByHashtag(hashtag, ref) {
                 u.id AS "ownerId",
                 l.url,
                 COALESCE(s.user_id, NULL) AS "who_shared_id",
-                COUNT(s.post_id) AS shares,
-                COALESCE(COUNT(c.id), 0) as "total_comments",
-                COALESCE(
-                    json_agg(
-                        json_build_object(
-                          'comment_id', c.id,
-                          'user_picture_url', un.picture_url, 
-                          'user_name', un.name,
-                          'comment', c.comment,
-                          'author_post', COALESCE(u.id = un.id, true)
-                        )
-                    ) FILTER (WHERE c.* IS NOT NULL),
-                    '[]'
-                ) as "comments"
+                COUNT(s.post_id) AS shares
             FROM posts p
             JOIN post_hashtags ph ON ph.post_id = p.id
             JOIN users u ON p.user_id = u.id
             JOIN links l ON p.link_id = l.id
             LEFT JOIN shares s ON s.post_id = p.id
-            LEFT JOIN comments c ON c.post_id = p.id
-            LEFT JOIN users un ON c.user_id = un.id
             WHERE ph.hashtag_id = $1 AND p.id < $2 AND (u.id = s.user_id OR s.user_id IS NULL)
             GROUP BY p.id, u.name, u.picture_url, u.id, l.url, s.user_id
             ORDER BY p.id DESC
             LIMIT 10;`,
             [hashtagId, ref]
         );
+
+        const { rows: whoSharedList } = await findWhoShared();
+        const whoSharedHash = {};
+        for (let i = 0; i < whoSharedList.length; i++) {
+          whoSharedHash[whoSharedList[i]["who_shared_id"]] =
+            whoSharedList[i]["who_shared_name"];
+        }
+
+        posts.rows.forEach((post) => {
+            if (post["who_shared_id"] === null) post["who_shared_name"] = null;
+            else
+              post["who_shared_name"] = whoSharedHash[post["who_shared_id"]]
+                ? whoSharedHash[post["who_shared_id"]]
+                : null;
+        });
 
         const likes = await connectionDB.query(`
             SELECT u.name, 
