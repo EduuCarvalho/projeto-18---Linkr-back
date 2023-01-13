@@ -20,3 +20,10 @@ export function selectFollowing(userId, followerId){
     [userId, followerId]
 );
 }
+
+export function existsFollowings(userId){
+  return connectionDB.query(
+    `SELECT * FROM following WHERE follower_id = $1;`,
+    [userId]
+  );
+}

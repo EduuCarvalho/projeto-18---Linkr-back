@@ -16,6 +16,7 @@ import { deleteAllLikesPost } from "../repositories/likesRepository.js";
 import { deleteAllCommentsPost } from "../repositories/commentsRepository.js";
 import { deleteAllsharingPost, findRepostsNumber } from "../repositories/sharingRepository.js";
 import { hashRepostsNumber } from "../utils/sharingUtils.js";
+import { existsFollowings } from "../repositories/followingRepository.js";
 
 export async function timelinePost(req, res) {
   const userId = req.user;
@@ -52,7 +53,8 @@ export async function getTimelinePosts(req, res) {
     const posts = await getPosts(ref, userId);
     const { rows: shares } = await findRepostsNumber();
     const sharesHash = {...hashRepostsNumber(shares)};
-    return res.status(200).send({ posts, sharesHash });
+    const { rowCount: followingCount } = await existsFollowings(userId);
+    return res.status(200).send({ followingCount, posts, sharesHash });
   } catch (err) {
     console.log(err);
     return res.sendStatus(500);
