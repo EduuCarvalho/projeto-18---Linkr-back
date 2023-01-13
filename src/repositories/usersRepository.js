@@ -8,9 +8,9 @@ export function searchUsers(userId, pattern) {
       u.id,
       u.name,
       u.picture_url,
-      COALESCE(u.id = f.user_id, true) AS is_following
+      COALESCE(f.* IS NOT NULL, true) AS is_following
     FROM users u
-    LEFT JOIN following f ON f.follower_id = $1
+    LEFT JOIN following f ON f.follower_id = $1 AND f.user_id = u.id
     WHERE LOWER(name) LIKE LOWER($2)`,
     [userId, pattern + "%"]
   );
