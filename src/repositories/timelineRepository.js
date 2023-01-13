@@ -85,13 +85,14 @@ export async function getPosts(ref, userId) {
   return completePosts;
 }
 
-export async function getCountPosts(postId){
+export async function getCountPosts(postId, userId){
     const countPosts = connectionDB.query(`
         SELECT COUNT(*) AS "recentPosts"
-        FROM posts
-        WHERE id > $1
+        FROM posts p
+          JOIN following f ON p.user_id = f.user_id
+        WHERE p.id > $1 AND (f.follower_id = $2)
     `,
-    [postId]
+    [postId, userId]
   );
 
   return (await countPosts).rows[0];
