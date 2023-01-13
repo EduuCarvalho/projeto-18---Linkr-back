@@ -18,7 +18,7 @@ export async function postFollow(req, res) {
         return;
       }
   
-      await insertFollowing(userId, user.id);
+      await insertFollowing(user.id, userId);
   
       res.status(200).send({ message: "The user has been followed!" });
     } catch (err) {
@@ -38,13 +38,8 @@ export async function postFollow(req, res) {
         res.status(404).send({ message: "The user doesn't exist!" });
         return;
       }
-
-      if (userId === user.id) {
-        res.status(409).send({ message: "You can't unfollow yourself!" });
-        return;
-      }
   
-      await deleteFollowing(userId, user.id);
+      await deleteFollowing(user.id, userId);
   
       res.status(200).send({ message: "The user has been unfollowed!" });
     } catch (err) {
